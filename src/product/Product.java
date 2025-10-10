@@ -51,12 +51,19 @@ public class Product {
     public Product(String id, String name, double price) {
         this(id, name, null, price, 0, null);
     }
-    
+
     /**
      * 3. Конструктор без аргументов. Вызывает конструктор с обязательными полями.
      */
     public Product() {
         this("AUTO-" + nextSeq(), "Unnamed", 0.0);
+    }
+
+    /**
+     * 4. Конструктор для совместимости с кодом из предыдущих заданий.
+     */
+    public Product(String id, String name, double price, int quantity) {
+        this(id, name, null, price, quantity, null);
     }
 
     // --- Статические фабричные методы ---
@@ -88,7 +95,6 @@ public class Product {
     }
 
     // --- Защищенные мутаторы (Guarded Mutators) ---
-    // (Код из предыдущей лабораторной без изменений)
     public boolean trySetId(String id) {
         if (id != null && id.trim().length() >= 2) {
             this.id = id.trim();
@@ -154,7 +160,34 @@ public class Product {
         return false;
     }
     
-    // ... Остальные методы (геттеры, applyDiscount, getStockStatus и т.д.) без изменений ...
+    // --- Бизнес-операции и информационные методы ---
+    public boolean applyDiscount(double percentage) {
+        if (percentage >= 0 && percentage <= 90) {
+            this.price *= (1 - percentage / 100.0);
+            return true;
+        }
+        return false;
+    }
+
+    public double calculateTotalValue() {
+        return this.price * this.quantity;
+    }
+
+    public void displayProductInfo() {
+        System.out.println("--- Информация о товаре ---");
+        System.out.println("ID: " + id);
+        System.out.println("Название: " + name);
+        System.out.println("Описание: " + (description == null || description.isEmpty() ? "Отсутствует" : description));
+        System.out.printf("Цена: %.2f\n", price);
+        System.out.println("Количество на складе: " + quantity);
+        System.out.println("Статус наличия: " + getStockStatus());
+        if (category != null && category.getName() != null) {
+            System.out.println("Категория: " + category.getName());
+        }
+        System.out.println("---------------------------");
+    }
+
+    // --- Геттеры ---
     public String getId() { return id; }
     public String getName() { return name; }
     public double getPrice() { return price; }
