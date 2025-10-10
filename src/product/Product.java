@@ -1,157 +1,168 @@
-// src/product/Product.java
 package product;
 
 import category.Category;
 
 /**
- * Класс Product представляет отдельный товар в магазине.
- * Он управляет информацией о товаре, такой как цена, количество на складе,
- * и предоставляет методы для управления запасами и применения скидок.
+ * Класс Product представляет товар в магазине с усиленной инкапсуляцией и валидацией.
+ * Все изменения состояния объекта происходят через "защищенные" методы,
+ * которые проверяют корректность данных и возвращают boolean в зависимости от успеха операции.
  */
 public class Product {
-    // --- Атрибуты ---
-    private int id;
+    // --- Атрибуты (все private для инкапсуляции) ---
+    private String id;
     private String name;
     private String description;
     private double price;
     private int quantity;
     private Category category;
-    private boolean inStock;
 
     // --- Конструктор ---
     /**
-     * Создает новый объект Product с заданными параметрами.
-     * @param id Уникальный идентификатор товара.
-     * @param name Название товара.
-     * @param price Цена товара (должна быть неотрицательной).
-     * @param quantity Количество товара на складе (должно быть неотрицательным).
-     * @throws IllegalArgumentException если цена или количество отрицательные.
+     * Создает новый объект Product с обязательной начальной валидацией.
+     * Если начальные данные некорректны, создание объекта завершится ошибкой.
+     * @param id Уникальный ID товара (длина >= 2).
+     * @param name Название товара (длина >= 2).
+     * @param price Начальная цена (0 <= цена <= 1,000,000).
+     * @param quantity Начальное количество (0 <= количество <= 1,000,000).
      */
-    public Product(int id, String name, double price, int quantity) {
-        this.id = id;
-        this.name = name;
-        this.description = ""; // По умолчанию
-
-        // Проверка корректности цены
-        if (price < 0) {
-            throw new IllegalArgumentException("Цена не может быть отрицательной.");
+    public Product(String id, String name, double price, int quantity) {
+        // Начальная валидация критически важных полей
+        if (id == null || id.trim().length() < 2) {
+            throw new IllegalArgumentException("ID товара не может быть null и должен содержать минимум 2 символа.");
         }
-        this.price = price;
+        this.id = id.trim();
 
-        // Проверка корректности количества
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Количество не может быть отрицательным.");
+        if (name == null || name.trim().length() < 2) {
+            throw new IllegalArgumentException("Название товара не может быть null и должно содержать минимум 2 символа.");
         }
-        this.quantity = quantity;
-        this.inStock = quantity > 0;
+        this.name = name.trim();
+        
+        // Для остальных полей используем защищенные мутаторы
+        if (!trySetPrice(price)) {
+             throw new IllegalArgumentException("Некорректная начальная цена.");
+        }
+        if (!trySetQuantity(quantity)) {
+            throw new IllegalArgumentException("Некорректное начальное количество.");
+        }
     }
 
-    // --- Методы управления запасами ---
+    // --- Защищенные мутаторы (Guarded Mutators) ---
 
-    /**
-     * Добавляет указанное количество товара на склад.
-     * @param amount Количество для добавления (должно быть положительным).
-     */
-    public void addStock(int amount) {
-        if (amount > 0) {
+    public boolean trySetId(String id) {
+        if (id != null && id.trim().length() >= 2) {
+            this.id = id.trim();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean trySetName(String name) {
+        if (name != null && name.trim().length() >= 2) {
+            this.name = name.trim();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean trySetDescription(String description) {
+        if (description == null || description.trim().length() <= 200) {
+            this.description = description;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean trySetPrice(double price) {
+        if (price >= 0.0 && price <= 1_000_000.0) {
+            this.price = price;
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean trySetQuantity(int quantity) {
+        if (quantity >= 0 && quantity <= 1_000_000) {
+            this.quantity = quantity;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean trySetCategory(Category category) {
+        if (category != null) {
+            // В реальном приложении можно добавить логику
+            // по удалению продукта из старой категории
+            this.category = category;
+            return true;
+        }
+        return false;
+    }
+
+    // --- Методы управления запасами (с валидацией) ---
+
+    public boolean addStock(int amount) {
+        if (amount > 0 && (this.quantity + amount) <= 1_000_000) {
             this.quantity += amount;
-            this.inStock = true; // Если добавили товар, он точно в наличии
-            System.out.println(amount + " единиц товара '" + name + "' добавлено на склад. Новое количество: " + this.quantity);
-        } else {
-            System.out.println("Ошибка: Нельзя добавить отрицательное или нулевое количество товара.");
+            return true;
         }
+        return false;
     }
 
-    /**
-     * Осуществляет продажу указанного количества товара.
-     * @param amount Количество для продажи (должно быть положительным).
-     */
-    public void sellProduct(int amount) {
-        if (amount <= 0) {
-            System.out.println("Ошибка: Количество для продажи должно быть положительным.");
-            return;
-        }
-        // Проверяем, достаточно ли товара на складе
-        if (this.quantity >= amount) {
+    public boolean sellProduct(int amount) {
+        if (amount > 0 && amount <= this.quantity) {
             this.quantity -= amount;
-            System.out.println(amount + " единиц товара '" + name + "' продано. Остаток на складе: " + this.quantity);
-            // Обновляем статус наличия
-            if (this.quantity == 0) {
-                this.inStock = false;
-            }
-        } else {
-            System.out.println("Ошибка: Недостаточно товара '" + name + "' на складе для продажи. В наличии: " + this.quantity);
+            return true;
         }
+        return false;
     }
 
-    // --- Бизнес-операции ---
-
-    /**
-     * Применяет процентную скидку к цене товара.
-     * @param percentage Процент скидки (от 0 до 100).
-     */
-    public void applyDiscount(double percentage) {
-        if (percentage >= 0 && percentage <= 100) {
+    // --- Бизнес-операции (с валидацией) ---
+    
+    public boolean applyDiscount(double percentage) {
+        if (percentage >= 0 && percentage <= 90) {
             this.price *= (1 - percentage / 100.0);
-            System.out.printf("К товару '%s' применена скидка %.1f%%. Новая цена: %.2f\n", name, percentage, price);
-        } else {
-            System.out.println("Ошибка: Процент скидки должен быть в диапазоне от 0 до 100.");
+            return true;
         }
+        return false;
     }
 
-    /**
-     * Рассчитывает общую стоимость всех единиц данного товара на складе.
-     * @return Общая стоимость запасов.
-     */
     public double calculateTotalValue() {
         return this.price * this.quantity;
     }
-
-    // --- Информационный метод ---
-
+    
+    // --- Геттеры (только для чтения) ---
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public double getPrice() { return price; }
+    public int getQuantity() { return quantity; }
+    public Category getCategory() { return category; }
+    
     /**
-     * Выводит полную информацию о продукте в консоль.
+     * Вычисляемый статус наличия товара на складе.
+     * @return "OUT_OF_STOCK", "LOW" или "IN_STOCK".
      */
+    public String getStockStatus() {
+        if (quantity == 0) {
+            return "OUT_OF_STOCK";
+        } else if (quantity <= 10) {
+            return "LOW";
+        } else {
+            return "IN_STOCK";
+        }
+    }
+
     public void displayProductInfo() {
         System.out.println("--- Информация о товаре ---");
         System.out.println("ID: " + id);
         System.out.println("Название: " + name);
-        System.out.println("Описание: " + (description.isEmpty() ? "Отсутствует" : description));
+        System.out.println("Описание: " + (description == null || description.isEmpty() ? "Отсутствует" : description));
         System.out.printf("Цена: %.2f\n", price);
         System.out.println("Количество на складе: " + quantity);
-        System.out.println("В наличии: " + (inStock ? "Да" : "Нет"));
+        System.out.println("Статус наличия: " + getStockStatus()); // Используем новый метод
         if (category != null) {
             System.out.println("Категория: " + category.getName());
         }
         System.out.println("---------------------------");
-    }
-
-    // --- Геттеры и Сеттеры (для доступа к приватным полям) ---
-    public String getName() {
-        return name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        if (price >= 0) {
-            this.price = price;
-        } else {
-            System.out.println("Ошибка: Цена не может быть отрицательной.");
-        }
-    }
-    
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
     }
 }
