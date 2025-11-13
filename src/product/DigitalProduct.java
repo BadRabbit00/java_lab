@@ -30,6 +30,10 @@ public class DigitalProduct extends Product {
     public boolean trySetDownloadSizeMb(double sizeMb) {
         if (sizeMb >= 0 && sizeMb <= 1_000_000) {
             this.downloadSizeMb = sizeMb;
+            if (sizeMb < 500000){
+                applyDiscount(10);
+                return true;
+            }
             return true;
         }
         return false;
