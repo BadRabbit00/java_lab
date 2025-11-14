@@ -1,26 +1,24 @@
 package product.pricing;
 
 import product.Product;
+// 1. ИМПОРТИРУЕМ DigitalProduct, чтобы проверить тип
+import product.DigitalProduct;
 
 /**
- * Реализация PricePolicy: Фиксированная скидка на единицу товара.
+ * ...
+ * ТЕПЕРЬ ДЕЙСТВУЕТ ТОЛЬКО НА DigitalProduct.
  */
 public class FixedOff implements PricePolicy {
-    private final double amount; // >= 0
+    // ... (конструктор и другие методы)
 
-    public FixedOff(double amount) {
-        this.amount = Math.max(0, amount);
-    }
-
+    /**
+     * 2. (ПЕРЕОПРЕДЕЛЕНО)
+     * Это правило применимо, только если продукт является DigitalProduct.
+     */
     @Override
-    public String name() {
-        return "Fixed-" + amount;
-    }
-
-    @Override
-    public double apply(Product p, int qty) {
-        // Цена за единицу не может быть ниже нуля
-        double unitPrice = Math.max(0.0, p.getPrice() - amount);
-        return unitPrice * Math.max(0, qty);
+    public boolean applicableTo(Product p) {
+        // Мы проверяем, является ли переданный продукт p
+        // экземпляром класса DigitalProduct
+        return p instanceof DigitalProduct;
     }
 }
