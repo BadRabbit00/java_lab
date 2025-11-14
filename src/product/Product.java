@@ -2,11 +2,13 @@ package product;
 
 // Импортируем класс Category, так как он нам снова нужен
 import category.Category;
+// Новые импорты для Лаб. 6
+import product.pricing.PricePolicy;
+import java.util.List;
 
 /**
  * Базовый класс (суперкласс) для всех товаров.
- * Содержит общие свойства и методы, которые будут унаследованы подклассами.
- * В ЭТОЙ ВЕРСИИ ВОССТАНОВЛЕНЫ МЕТОДЫ ДЛЯ СОВМЕСТИМОСТИ С CATEGORY.
+ * ДОБАВЛЕНА ПЕРЕГРУЗКА (OVERLOADING) методов finalPrice.
  */
 public class Product {
     // --- Статические члены ---
@@ -20,18 +22,16 @@ public class Product {
     private String description;
     private double price;
     private int quantity;
-    // ВОЗВРАЩАЕМ ТИП Category вместо Object для корректной работы
-    private Category category; 
+    private Category category;
 
     // --- Конструкторы ---
-    // Обновляем конструктор, чтобы он принимал Category
     public Product(String id, String name, String description, double price, int quantity, Category category) {
         if (!trySetId(id)) this.id = "AUTO-" + nextSeq();
         if (!trySetName(name)) this.name = "Unnamed";
         trySetDescription(description);
         if (!trySetPrice(price)) this.price = 0.0;
         if (!trySetQuantity(quantity)) this.quantity = 0;
-        trySetCategory(category); // Используем наш восстановленный метод
+        trySetCategory(category);
         createdCount++;
     }
 
@@ -48,7 +48,7 @@ public class Product {
         return new Product(id, name, price);
     }
     public static Product freeSample(String name) {
-        Product sample = new Product("AUTO-" + nextSeq(), name, 0.0);
+        Product sample = new Product("AUTO-" + nextSeq(), "Unnamed", 0.0);
         sample.trySetQuantity(1);
         return sample;
     }
@@ -92,36 +92,24 @@ public class Product {
         return false;
     }
 
-    // --- ВОССТАНОВЛЕННЫЕ МЕТОДЫ ---
-    /**
-     * (ВОССТАНОВЛЕНО) Устанавливает категорию.
-     */
     public boolean trySetCategory(Category category) {
         this.category = category;
         return true;
     }
     
-    /**
-     * (ВОССТАНОВЛЕНО) Рассчитывает общую стоимость запасов этого товара.
-     */
+    // --- Методы расчета и отображения (из старых лаб) ---
     public double calculateTotalValue() {
         return this.price * this.quantity;
     }
 
-    /**
-     * (ВОССТАНОВЛЕНО) Применяет скидку (для совместимости со старыми ShopDemo).
-     */
     public boolean applyDiscount(double percentage) {
-        if (percentage >= 0 && percentage <= 90) { // Правило из лаб. 2
+        if (percentage >= 0 && percentage <= 90) {
             this.price *= (1 - percentage / 100.0);
             return true;
         }
         return false;
     }
 
-    /**
-     * (ВОССТАНОВЛЕНО) Отображает информацию (для совместимости со старыми ShopDemo).
-     */
     public void displayProductInfo() {
         System.out.println("--- Информация о товаре ---");
         System.out.println("ID: " + id);
@@ -136,12 +124,63 @@ public class Product {
         System.out.println("---------------------------");
     }
 
+    // --- НОВЫЕ МЕТОДЫ ДЛЯ ЛАБ. 6 (ПЕРЕГРУЗКА) ---
+
+    /**
+     * 1) Цена за 1 шт, без правил.
+     */
+    public double finalPrice() {
+        return getPrice();
+    }
+
+    /**
+     * 2) Цена за 'qty' шт, без правил.
+     */
+    public double finalPrice(int qty) {
+        if (qty <= 0) return 0.0;
+        return getPrice() * qty;
+    }
+
+    /**
+     * 3) Цена за 'qty' шт, с одним правилом.
+     * (Подклассы могут добавить свою логику, напр. доставку)
+     */
+    public double finalPrice(int qty, PricePolicy policy) {
+        if (qty <= 0) return 0.0;
+        // Если правило null или не применимо, используем базовую цену
+        if (policy == null || !policy.applicableTo(this)) {
+            return finalPrice(qty);
+        }
+        // Применяем правило
+        return policy.apply(this, qty);
+    }
+
+    /**
+     * 4) Цена за 'qty' шт, с выбором лучшего из списка правил.
+     */
+    public double finalPrice(int qty, List<PricePolicy> policies) {
+        if (qty <= 0) return 0.0;
+        if (policies == null || policies.isEmpty()) {
+            return finalPrice(qty); // Нет правил, базовая цена
+        }
+        
+        double bestPrice = Double.POSITIVE_INFINITY;
+        // Находим минимальную цену среди всех правил
+        for (PricePolicy pp : policies) {
+            double currentPrice = finalPrice(qty, pp); // Вызываем (3)
+            if (currentPrice < bestPrice) {
+                bestPrice = currentPrice;
+            }
+        }
+        return bestPrice;
+    }
+
     // --- Геттеры и другие методы ---
     public String getId() { return id; }
     public String getName() { return name; }
     public double getPrice() { return price; }
     public int getQuantity() { return quantity; }
-    public Category getCategory() { return category; } // Добавим геттер
+    public Category getCategory() { return category; }
 
     public String getStockStatus() {
         if (quantity == 0) return "OUT_OF_STOCK";
@@ -155,4 +194,3 @@ public class Product {
                 id, name, price, quantity);
     }
 }
-
