@@ -1,6 +1,7 @@
 package product;
 
 import product.shipping.Shippable;
+import product.shipping.ShippingConstants;
 import product.shipping.ShippingPolicy;
 import product.shipping.StandardShipping;
 
@@ -76,7 +77,7 @@ public class PhysicalProduct extends Product implements Shippable {
         if (shippingPolicy != null) {
             return shippingPolicy.calculate(weightKg, lengthCm, widthCm, heightCm);
         }
-        return getBillableWeight() * 100.0; // Fallback rate
+        return getBillableWeight() * ShippingConstants.STANDARD_RATE_PER_KG; // Fallback rate
     }
     
     // --- Сеттер для стратегии доставки ---

@@ -7,6 +7,10 @@ package product.tax;
  * - Price > 500: 15% tax
  * 
  * Implements TaxPolicy interface (OCP compliant).
+ * 
+ * Note: The taxRate() method returns a nominal average rate (10%) since 
+ * the actual rate depends on the price. For accurate tax calculation,
+ * use calculateTax(price) which applies the correct progressive rate.
  */
 public class ProgressiveTaxStrategy implements TaxPolicy {
     
@@ -17,10 +21,12 @@ public class ProgressiveTaxStrategy implements TaxPolicy {
     private static final double MID_RATE = 0.10;    // 10%
     private static final double HIGH_RATE = 0.15;   // 15%
 
+    /**
+     * Returns a nominal rate (middle tier) since actual rate is price-dependent.
+     * For accurate tax calculation, use calculateTax(price) instead.
+     */
     @Override
     public double taxRate() {
-        // Returns the middle rate as a default
-        // The actual rate is determined by calculateTax based on price
         return MID_RATE;
     }
 
