@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Shop - Лучший магазин электроники</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">Java Shop</a>
+            <nav class="nav">
+                <a href="/" class="nav-link">🏠 Главная</a>
+                <a href="/admin" class="nav-link admin">⚙️ Админ-панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero animate-fade-in">
+            <h1>Добро пожаловать в Java Shop!</h1>
+            <p>Откройте для себя лучшие товары по невероятным ценам. Электроника, программы, игры и многое другое ждут вас!</p>
+        </section>
+
+        <!-- Categories Filter -->
+        <section class="categories-filter">
+            <a th:href="@{/}" class="category-btn" th:classappend="${selectedCategory == null} ? 'active' : ''">
+                📦 Все товары
+            </a>
+            <a th:each="category : ${categories}" 
+               th:href="@{/(category=${category.name})}" 
+               class="category-btn"
+               th:classappend="${selectedCategory != null && selectedCategory.equals(category.name)} ? 'active' : ''">
+                <span th:text="${category.name}">Категория</span>
+            </a>
+        </section>
+
+        <!-- Products Grid -->
+        <section class="product-grid">
+            <article th:each="product : ${products}" class="product-card animate-fade-in">
+                <div class="product-image" 
+                     th:classappend="${productTypes.get(product.id) == 'digital'} ? 'digital' : 'physical'">
+                    <span th:text="${productTypes.get(product.id) == 'digital'} ? '💿' : '📦'">📦</span>
+                    <span class="product-badge" 
+                          th:classappend="${product.stockStatus == 'OUT_OF_STOCK'} ? 'out-of-stock' : ''"
+                          th:text="${product.stockStatus == 'OUT_OF_STOCK'} ? 'Нет в наличии' : 
+                                   (${product.stockStatus == 'LOW'} ? 'Мало' : 'В наличии')">
+                        В наличии
+                    </span>
+                </div>
+                <div class="product-content">
+                    <span class="product-category" th:if="${product.category != null}" 
+                          th:text="${product.category.name}">Категория</span>
+                    <h3 class="product-title" th:text="${product.name}">Название товара</h3>
+                    <p class="product-description" th:text="${product.description ?: 'Описание отсутствует'}">
+                        Описание товара здесь...
+                    </p>
+                    <div class="product-footer">
+                        <span class="product-price">
+                            <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">10000</span>
+                            <small>₸</small>
+                        </span>
+                        <a th:href="@{/product/{id}(id=${productNumericIds.get(product.id)})}" class="btn btn-primary">
+                            Подробнее →
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(products)}" class="empty-state" style="grid-column: 1 / -1;">
+                <div class="icon">📭</div>
+                <h3>Товары не найдены</h3>
+                <p>В выбранной категории пока нет товаров</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Java Shop. Создано с ❤️ с использованием Spring Boot</p>
+    </footer>
+</body>
+</html>

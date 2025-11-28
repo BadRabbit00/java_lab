@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политики доставки | Java Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="/" class="logo">🛍️ Java Shop</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/admin">📊 Дашборд</a></li>
+                <li><a href="/admin/products">📦 Товары</a></li>
+                <li><a href="/admin/categories">🏷️ Категории</a></li>
+                <li><a href="/admin/prices">💰 Ценовые политики</a></li>
+                <li><a href="/admin/taxes">📋 Налоги</a></li>
+                <li><a href="/admin/shipping" class="active">🚚 Доставка</a></li>
+                <li style="margin-top: 2rem;"><a href="/">🏠 Вернуться в магазин</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <div class="admin-header">
+                <h1>🚚 Политики доставки</h1>
+            </div>
+
+            <!-- Shipping Policies Table -->
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ключ</th>
+                            <th>Тип</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry : ${shippingPolicies}">
+                            <td>
+                                <code th:text="${entry.key}">key</code>
+                            </td>
+                            <td>
+                                <span class="tag tag-physical" th:text="${entry.value.class.simpleName}">Тип</span>
+                            </td>
+                            <td>
+                                <span th:switch="${entry.key}">
+                                    <span th:case="'standard'">Стандартная доставка (100 ₸/кг)</span>
+                                    <span th:case="'express'">Экспресс доставка (200 ₸/кг + 500 ₸)</span>
+                                    <span th:case="'free'">Бесплатная доставка (до 2 кг)</span>
+                                    <span th:case="*">-</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Empty State -->
+                <div th:if="${#maps.isEmpty(shippingPolicies)}" class="empty-state">
+                    <div class="icon">📭</div>
+                    <h3>Нет политик доставки</h3>
+                    <p>Политики доставки будут добавлены автоматически</p>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="form-card" style="margin-top: 2rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+                <h3>ℹ️ О политиках доставки</h3>
+                <ul style="color: var(--text-secondary); margin: 1rem 0; padding-left: 1.5rem;">
+                    <li><strong>Стандартная (StandardShipping)</strong> — 100 ₸ за кг, учитывается объемный вес</li>
+                    <li><strong>Экспресс (ExpressShipping)</strong> — 200 ₸ за кг + 500 ₸ фиксированная плата</li>
+                    <li><strong>Бесплатная (FreeShipping)</strong> — бесплатно для товаров до 2 кг, иначе стандартная ставка</li>
+                </ul>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">
+                    Объемный вес рассчитывается по формуле: (Длина × Ширина × Высота) / 5000
+                </p>
+            </div>
+
+            <!-- Shipping Constants Info -->
+            <div class="form-card" style="margin-top: 1rem;">
+                <h3>📐 Константы доставки</h3>
+                <ul class="product-specs">
+                    <li>
+                        <strong>Делитель объемного веса:</strong>
+                        <span>5000</span>
+                    </li>
+                    <li>
+                        <strong>Стандартная ставка:</strong>
+                        <span>100 ₸/кг</span>
+                    </li>
+                    <li>
+                        <strong>Экспресс ставка:</strong>
+                        <span>200 ₸/кг</span>
+                    </li>
+                    <li>
+                        <strong>Экспресс сбор:</strong>
+                        <span>500 ₸</span>
+                    </li>
+                    <li>
+                        <strong>Порог бесплатной доставки:</strong>
+                        <span>2 кг</span>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

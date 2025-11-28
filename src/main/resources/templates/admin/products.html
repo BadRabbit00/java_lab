@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление товарами | Java Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="/" class="logo">🛍️ Java Shop</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/admin">📊 Дашборд</a></li>
+                <li><a href="/admin/products" class="active">📦 Товары</a></li>
+                <li><a href="/admin/categories">🏷️ Категории</a></li>
+                <li><a href="/admin/prices">💰 Ценовые политики</a></li>
+                <li><a href="/admin/taxes">📋 Налоги</a></li>
+                <li><a href="/admin/shipping">🚚 Доставка</a></li>
+                <li style="margin-top: 2rem;"><a href="/">🏠 Вернуться в магазин</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <div class="admin-header">
+                <h1>📦 Управление товарами</h1>
+                <a href="/admin/products/add" class="btn btn-primary">➕ Добавить товар</a>
+            </div>
+
+            <!-- Success Message -->
+            <div th:if="${success}" class="alert alert-success" th:text="${success}">
+                Успешно!
+            </div>
+
+            <!-- Products Table -->
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Тип</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Категория</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="product : ${products}">
+                            <td th:text="${product.id}">P-001</td>
+                            <td>
+                                <strong th:text="${product.name}">Название</strong>
+                                <br>
+                                <small style="color: var(--text-muted);" 
+                                       th:text="${#strings.abbreviate(product.description ?: '', 50)}">
+                                    Описание
+                                </small>
+                            </td>
+                            <td>
+                                <span class="tag" 
+                                      th:classappend="${#strings.startsWith(product.id, 'D-')} ? 'tag-digital' : 'tag-physical'"
+                                      th:text="${#strings.startsWith(product.id, 'D-')} ? '💿 Цифровой' : '📦 Физический'">
+                                    Тип
+                                </span>
+                            </td>
+                            <td>
+                                <strong th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + ' ₸'}">
+                                    10000 ₸
+                                </strong>
+                            </td>
+                            <td th:text="${product.quantity + ' шт.'}">10 шт.</td>
+                            <td th:text="${product.category != null} ? ${product.category.name} : '-'">Категория</td>
+                            <td class="actions">
+                                <a th:href="@{/admin/products/edit/{id}(id=${product.id.substring(2)})}" 
+                                   class="btn btn-secondary btn-sm">✏️</a>
+                                <form th:action="@{/admin/products/delete/{id}(id=${product.id.substring(2)})}" 
+                                      method="post" style="display: inline;" 
+                                      onsubmit="return confirm('Удалить этот товар?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Empty State -->
+                <div th:if="${#lists.isEmpty(products)}" class="empty-state">
+                    <div class="icon">📭</div>
+                    <h3>Нет товаров</h3>
+                    <p>Добавьте первый товар, нажав кнопку выше</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

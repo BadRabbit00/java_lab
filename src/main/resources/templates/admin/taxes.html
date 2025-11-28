@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Налоговые политики | Java Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="/" class="logo">🛍️ Java Shop</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/admin">📊 Дашборд</a></li>
+                <li><a href="/admin/products">📦 Товары</a></li>
+                <li><a href="/admin/categories">🏷️ Категории</a></li>
+                <li><a href="/admin/prices">💰 Ценовые политики</a></li>
+                <li><a href="/admin/taxes" class="active">📋 Налоги</a></li>
+                <li><a href="/admin/shipping">🚚 Доставка</a></li>
+                <li style="margin-top: 2rem;"><a href="/">🏠 Вернуться в магазин</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <div class="admin-header">
+                <h1>📋 Налоговые политики</h1>
+            </div>
+
+            <!-- Success Message -->
+            <div th:if="${success}" class="alert alert-success" th:text="${success}">
+                Успешно!
+            </div>
+
+            <!-- Add Tax Forms -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+                <!-- Flat VAT -->
+                <div class="form-card">
+                    <h3>📊 Плоский НДС</h3>
+                    <form action="/admin/taxes/add/flat" method="post">
+                        <div class="form-group">
+                            <label for="f-key">Ключ политики *</label>
+                            <input type="text" id="f-key" name="key" class="form-control" required 
+                                   placeholder="flat-vat-18">
+                        </div>
+                        <div class="form-group">
+                            <label for="f-rate">Ставка НДС (%) *</label>
+                            <input type="number" id="f-rate" name="rate" class="form-control" required 
+                                   min="0" max="100" step="0.1" placeholder="18">
+                        </div>
+                        <button type="submit" class="btn btn-primary">➕ Добавить</button>
+                    </form>
+                </div>
+
+                <!-- No Tax -->
+                <div class="form-card">
+                    <h3>🚫 Без налога</h3>
+                    <form action="/admin/taxes/add/notax" method="post">
+                        <div class="form-group">
+                            <label for="n-key">Ключ политики *</label>
+                            <input type="text" id="n-key" name="key" class="form-control" required 
+                                   placeholder="tax-exempt">
+                        </div>
+                        <button type="submit" class="btn btn-primary">➕ Добавить</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Taxes Table -->
+            <div class="data-table" style="margin-top: 2rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ключ</th>
+                            <th>Ставка</th>
+                            <th>Тип</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry : ${taxPolicies}">
+                            <td>
+                                <code th:text="${entry.key}">key</code>
+                            </td>
+                            <td th:text="${#numbers.formatDecimal(entry.value.taxRate() * 100, 0, 'COMMA', 1, 'POINT') + '%'}">
+                                12%
+                            </td>
+                            <td>
+                                <span class="tag tag-physical" th:text="${entry.value.class.simpleName}">Тип</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Empty State -->
+                <div th:if="${#maps.isEmpty(taxPolicies)}" class="empty-state">
+                    <div class="icon">📭</div>
+                    <h3>Нет налоговых политик</h3>
+                    <p>Добавьте первую политику, используя формы выше</p>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="form-card" style="margin-top: 2rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+                <h3>ℹ️ О налоговых политиках</h3>
+                <ul style="color: var(--text-secondary); margin: 1rem 0; padding-left: 1.5rem;">
+                    <li><strong>Плоский НДС (FlatVat)</strong> — фиксированная ставка налога для всех товаров</li>
+                    <li><strong>Без налога (NoTax)</strong> — нулевая ставка (для товаров, освобожденных от налога)</li>
+                    <li><strong>Прогрессивный налог</strong> — разные ставки в зависимости от цены товара</li>
+                    <li><strong>Сниженный НДС для цифровых товаров</strong> — применяется только к цифровым товарам</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

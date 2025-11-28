@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name} + ' | Java Shop'">Товар | Java Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">Java Shop</a>
+            <nav class="nav">
+                <a href="/" class="nav-link">🏠 Главная</a>
+                <a href="/admin" class="nav-link admin">⚙️ Админ-панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <a href="/" class="btn btn-secondary" style="margin-bottom: 2rem; display: inline-flex;">
+            ← Назад в каталог
+        </a>
+
+        <div class="product-detail animate-fade-in">
+            <div class="product-detail-image" 
+                 th:classappend="${isDigital} ? 'digital' : 'physical'">
+                <span th:text="${isDigital} ? '💿' : '📦'">📦</span>
+            </div>
+            
+            <div class="product-detail-info">
+                <span class="product-category" th:if="${product.category != null}" 
+                      th:text="${product.category.name}">Категория</span>
+                
+                <h1 th:text="${product.name}">Название товара</h1>
+                
+                <p class="product-price">
+                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">10000</span> ₸
+                </p>
+                
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;" 
+                   th:text="${product.description ?: 'Описание отсутствует'}">
+                    Подробное описание товара...
+                </p>
+
+                <ul class="product-specs">
+                    <li>
+                        <strong>ID товара:</strong>
+                        <span th:text="${product.id}">P-001</span>
+                    </li>
+                    <li>
+                        <strong>Наличие:</strong>
+                        <span th:text="${product.quantity + ' шт.'}">10 шт.</span>
+                    </li>
+                    <li>
+                        <strong>Статус:</strong>
+                        <span class="tag" 
+                              th:classappend="${product.stockStatus == 'IN_STOCK'} ? 'tag-physical' : 'tag-digital'"
+                              th:text="${product.stockStatus == 'OUT_OF_STOCK'} ? 'Нет в наличии' : 
+                                       (${product.stockStatus == 'LOW'} ? 'Мало на складе' : 'В наличии')">
+                            В наличии
+                        </span>
+                    </li>
+                    <li>
+                        <strong>Тип товара:</strong>
+                        <span class="tag" 
+                              th:classappend="${isDigital} ? 'tag-digital' : 'tag-physical'"
+                              th:text="${isDigital} ? 'Цифровой' : 'Физический'">Тип</span>
+                    </li>
+                    <li th:if="${isDigital}">
+                        <strong>Размер загрузки:</strong>
+                        <span th:text="${#numbers.formatDecimal(downloadSize, 0, 'COMMA', 2, 'POINT') + ' МБ'}">1024 МБ</span>
+                    </li>
+                    <li th:if="${isPhysical}">
+                        <strong>Доставка:</strong>
+                        <span th:text="${#numbers.formatDecimal(shippingCost, 0, 'COMMA', 0, 'POINT') + ' ₸'}">500 ₸</span>
+                    </li>
+                </ul>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn btn-primary" style="flex: 1;">
+                        🛒 Добавить в корзину
+                    </button>
+                    <button class="btn btn-success">
+                        ⚡ Купить сейчас
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Calculator Section -->
+        <div class="form-card" style="margin-top: 3rem;">
+            <h3>💰 Калькулятор цены</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                Рассчитайте стоимость с учетом скидок и налогов
+            </p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Количество</label>
+                    <input type="number" id="calc-qty" class="form-control" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Ценовая политика</label>
+                    <select id="calc-price-policy" class="form-control">
+                        <option value="">Без скидки</option>
+                        <option th:each="entry : ${pricePolicies}" 
+                                th:value="${entry.key}" 
+                                th:text="${entry.value.name()}">Политика</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Налог</label>
+                    <select id="calc-tax-policy" class="form-control">
+                        <option value="">Без налога</option>
+                        <option th:each="entry : ${taxPolicies}" 
+                                th:value="${entry.key}"
+                                th:text="${entry.key + ' (' + #numbers.formatDecimal(entry.value.taxRate() * 100, 0, 'COMMA', 1, 'POINT') + '%)'}"
+                        >Налог</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f1f7 100%); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Итого:</p>
+                <p id="calc-result" class="product-price" style="font-size: 2rem;">
+                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">10000</span> ₸
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Java Shop. Создано с ❤️ с использованием Spring Boot</p>
+    </footer>
+
+    <script th:inline="javascript">
+        const basePrice = /*[[${product.price}]]*/ 0;
+        const productId = /*[[${productId}]]*/ 0;
+        
+        function formatPrice(price) {
+            return new Intl.NumberFormat('ru-RU').format(Math.round(price)) + ' ₸';
+        }
+        
+        function calculatePrice() {
+            const qty = parseInt(document.getElementById('calc-qty').value) || 1;
+            const pricePolicy = document.getElementById('calc-price-policy').value;
+            const taxPolicy = document.getElementById('calc-tax-policy').value;
+            
+            let url = '/api/calculate?productId=' + productId + '&quantity=' + qty;
+            if (pricePolicy) url += '&pricePolicy=' + pricePolicy;
+            if (taxPolicy) url += '&taxPolicy=' + taxPolicy;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('calc-result').textContent = formatPrice(data.total);
+                })
+                .catch(() => {
+                    // Fallback to basic calculation
+                    document.getElementById('calc-result').textContent = formatPrice(basePrice * qty);
+                });
+        }
+        
+        document.getElementById('calc-qty').addEventListener('change', calculatePrice);
+        document.getElementById('calc-price-policy').addEventListener('change', calculatePrice);
+        document.getElementById('calc-tax-policy').addEventListener('change', calculatePrice);
+    </script>
+</body>
+</html>

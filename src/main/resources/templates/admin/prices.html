@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ценовые политики | Java Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="/" class="logo">🛍️ Java Shop</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/admin">📊 Дашборд</a></li>
+                <li><a href="/admin/products">📦 Товары</a></li>
+                <li><a href="/admin/categories">🏷️ Категории</a></li>
+                <li><a href="/admin/prices" class="active">💰 Ценовые политики</a></li>
+                <li><a href="/admin/taxes">📋 Налоги</a></li>
+                <li><a href="/admin/shipping">🚚 Доставка</a></li>
+                <li style="margin-top: 2rem;"><a href="/">🏠 Вернуться в магазин</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <div class="admin-header">
+                <h1>💰 Ценовые политики</h1>
+            </div>
+
+            <!-- Success Message -->
+            <div th:if="${success}" class="alert alert-success" th:text="${success}">
+                Успешно!
+            </div>
+
+            <!-- Add Policies Forms -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+                <!-- Percentage Discount -->
+                <div class="form-card">
+                    <h3>📉 Процентная скидка</h3>
+                    <form action="/admin/prices/add/percentage" method="post">
+                        <div class="form-group">
+                            <label for="p-key">Ключ политики *</label>
+                            <input type="text" id="p-key" name="key" class="form-control" required 
+                                   placeholder="percentage-15">
+                        </div>
+                        <div class="form-group">
+                            <label for="p-percent">Процент скидки (0-90) *</label>
+                            <input type="number" id="p-percent" name="percentage" class="form-control" required 
+                                   min="0" max="90" step="0.1" placeholder="15">
+                        </div>
+                        <button type="submit" class="btn btn-primary">➕ Добавить</button>
+                    </form>
+                </div>
+
+                <!-- Fixed Discount -->
+                <div class="form-card">
+                    <h3>💵 Фиксированная скидка <small style="font-size: 0.6em; color: var(--text-muted);">(только для цифровых товаров)</small></h3>
+                    <form action="/admin/prices/add/fixed" method="post">
+                        <div class="form-group">
+                            <label for="f-key">Ключ политики *</label>
+                            <input type="text" id="f-key" name="key" class="form-control" required 
+                                   placeholder="fixed-2000">
+                        </div>
+                        <div class="form-group">
+                            <label for="f-amount">Сумма скидки (₸) *</label>
+                            <input type="number" id="f-amount" name="amount" class="form-control" required 
+                                   min="0" step="1" placeholder="2000">
+                        </div>
+                        <button type="submit" class="btn btn-primary">➕ Добавить</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Policies Table -->
+            <div class="data-table" style="margin-top: 2rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ключ</th>
+                            <th>Название</th>
+                            <th>Тип</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry : ${pricePolicies}">
+                            <td>
+                                <code th:text="${entry.key}">key</code>
+                            </td>
+                            <td th:text="${entry.value.name()}">Название</td>
+                            <td>
+                                <span class="tag tag-digital" th:text="${entry.value.class.simpleName}">Тип</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Empty State -->
+                <div th:if="${#maps.isEmpty(pricePolicies)}" class="empty-state">
+                    <div class="icon">📭</div>
+                    <h3>Нет ценовых политик</h3>
+                    <p>Добавьте первую политику, используя формы выше</p>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="form-card" style="margin-top: 2rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+                <h3>ℹ️ О ценовых политиках</h3>
+                <ul style="color: var(--text-secondary); margin: 1rem 0; padding-left: 1.5rem;">
+                    <li><strong>Процентная скидка</strong> — уменьшает цену на указанный процент</li>
+                    <li><strong>Фиксированная скидка</strong> — уменьшает цену на фиксированную сумму (только для цифровых товаров)</li>
+                    <li><strong>BOGO-HALF</strong> — второй товар за полцены</li>
+                    <li><strong>Buy 3 Pay 2</strong> — при покупке 3 товаров, оплачиваете только 2</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
