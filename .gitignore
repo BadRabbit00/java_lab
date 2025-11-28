@@ -1,3 +1,20 @@
+# Build output
 ./out
 out
 out/
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Maven
+*.jar
+!.mvn/wrapper/*.jar
+
+# Logs
+*.log

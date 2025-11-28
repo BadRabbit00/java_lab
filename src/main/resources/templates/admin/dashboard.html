@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Java Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="/" class="logo">🛍️ Java Shop</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/admin" class="active">📊 Дашборд</a></li>
+                <li><a href="/admin/products">📦 Товары</a></li>
+                <li><a href="/admin/categories">🏷️ Категории</a></li>
+                <li><a href="/admin/prices">💰 Ценовые политики</a></li>
+                <li><a href="/admin/taxes">📋 Налоги</a></li>
+                <li><a href="/admin/shipping">🚚 Доставка</a></li>
+                <li style="margin-top: 2rem;"><a href="/">🏠 Вернуться в магазин</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <div class="admin-header">
+                <h1>📊 Дашборд</h1>
+                <span style="color: var(--text-muted);">Добро пожаловать в панель управления!</span>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <span class="icon">📦</span>
+                    <h3>Товары</h3>
+                    <div class="value" th:text="${productCount}">0</div>
+                </div>
+                <div class="dashboard-card">
+                    <span class="icon">🏷️</span>
+                    <h3>Категории</h3>
+                    <div class="value" th:text="${categoryCount}">0</div>
+                </div>
+                <div class="dashboard-card">
+                    <span class="icon">💰</span>
+                    <h3>Ценовые политики</h3>
+                    <div class="value" th:text="${pricePolicyCount}">0</div>
+                </div>
+                <div class="dashboard-card">
+                    <span class="icon">📋</span>
+                    <h3>Налоговые политики</h3>
+                    <div class="value" th:text="${taxPolicyCount}">0</div>
+                </div>
+                <div class="dashboard-card">
+                    <span class="icon">🚚</span>
+                    <h3>Политики доставки</h3>
+                    <div class="value" th:text="${shippingPolicyCount}">0</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="form-card">
+                <h3>⚡ Быстрые действия</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="/admin/products/add" class="btn btn-primary">➕ Добавить товар</a>
+                    <a href="/admin/categories" class="btn btn-secondary">🏷️ Управление категориями</a>
+                    <a href="/admin/prices" class="btn btn-secondary">💰 Настройка скидок</a>
+                    <a href="/admin/taxes" class="btn btn-secondary">📋 Настройка налогов</a>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="form-card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+                <h3>ℹ️ О системе</h3>
+                <p style="color: var(--text-secondary);">
+                    Эта админ-панель позволяет управлять всеми аспектами вашего магазина:
+                </p>
+                <ul style="color: var(--text-secondary); margin: 1rem 0; padding-left: 1.5rem;">
+                    <li><strong>Товары</strong> — добавление, редактирование и удаление физических и цифровых товаров</li>
+                    <li><strong>Категории</strong> — организация товаров по категориям</li>
+                    <li><strong>Ценовые политики</strong> — настройка скидок и акций (процентные, фиксированные, BOGO и др.)</li>
+                    <li><strong>Налоги</strong> — настройка НДС и других налоговых ставок</li>
+                    <li><strong>Доставка</strong> — настройка стоимости и условий доставки</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
