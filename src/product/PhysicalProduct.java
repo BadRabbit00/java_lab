@@ -1,10 +1,13 @@
 package product;
 
+import product.shipping.Shippable;
+
 /**
  * Подкласс для физических товаров. Наследует Product и добавляет
  * свойства, связанные с весом, размерами и доставкой.
+ * Implements Shippable interface for shipping cost calculations.
  */
-public class PhysicalProduct extends Product {
+public class PhysicalProduct extends Product implements Shippable {
     // --- Уникальные атрибуты ---
     private double weightKg;
     private double lengthCm, widthCm, heightCm;
@@ -52,6 +55,18 @@ public class PhysicalProduct extends Product {
         double volumetricWeight = (lengthCm * widthCm * heightCm) / 5000.0;
         double billableWeight = Math.max(weightKg, volumetricWeight);
         return billableWeight * 100; // Примерная цена: 100 KZT за расчетный кг
+    }
+
+    // --- Implementation of Shippable interface ---
+    @Override
+    public double calculateShippingCost() {
+        return estimateShippingCost();
+    }
+
+    @Override
+    public double getShippingWeight() {
+        double volumetricWeight = (lengthCm * widthCm * heightCm) / 5000.0;
+        return Math.max(weightKg, volumetricWeight);
     }
     
     // --- Геттеры для новых полей ---
