@@ -23,6 +23,7 @@ public class Product {
     private double price;
     private int quantity;
     private Category category;
+    private double costPrice; // Себестоимость (закупка)
 
     // --- Конструкторы ---
     public Product(String id, String name, String description, double price, int quantity, Category category) {
@@ -181,6 +182,17 @@ public class Product {
     public double getPrice() { return price; }
     public int getQuantity() { return quantity; }
     public Category getCategory() { return category; }
+    public double getCostPrice() { return costPrice; }
+
+    /**
+     * Устанавливает себестоимость товара.
+     * @param costPrice Цена закупки (не может быть отрицательной)
+     */
+    public void setCostPrice(double costPrice) {
+        if (costPrice >= 0) {
+            this.costPrice = costPrice;
+        }
+    }
 
     public String getStockStatus() {
         if (quantity == 0) return "OUT_OF_STOCK";
