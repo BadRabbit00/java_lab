@@ -7,11 +7,12 @@ import product.Product;
  * Extends the abstract Promotion class.
  */
 public class PercentagePromotion extends Promotion {
+    private static final double MAX_DISCOUNT_PERCENT = 90.0;
     private final double percent; // 0..90
 
     public PercentagePromotion(double percent) {
         // Guarantee percent is within valid range
-        this.percent = Math.max(0, Math.min(90, percent));
+        this.percent = Math.max(0, Math.min(MAX_DISCOUNT_PERCENT, percent));
     }
 
     @Override

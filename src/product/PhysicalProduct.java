@@ -8,6 +8,10 @@ import product.shipping.Shippable;
  * Implements Shippable interface for shipping cost calculations.
  */
 public class PhysicalProduct extends Product implements Shippable {
+    // --- Constants ---
+    private static final double VOLUMETRIC_DIVISOR = 5000.0;
+    private static final double SHIPPING_RATE_PER_KG = 100.0; // 100 KZT per kg
+
     // --- Уникальные атрибуты ---
     private double weightKg;
     private double lengthCm, widthCm, heightCm;
@@ -52,9 +56,7 @@ public class PhysicalProduct extends Product implements Shippable {
 
     // --- Уникальный метод бизнес-логики ---
     public double estimateShippingCost() {
-        double volumetricWeight = (lengthCm * widthCm * heightCm) / 5000.0;
-        double billableWeight = Math.max(weightKg, volumetricWeight);
-        return billableWeight * 100; // Примерная цена: 100 KZT за расчетный кг
+        return getBillableWeight() * SHIPPING_RATE_PER_KG;
     }
 
     // --- Implementation of Shippable interface ---
@@ -65,7 +67,12 @@ public class PhysicalProduct extends Product implements Shippable {
 
     @Override
     public double getShippingWeight() {
-        double volumetricWeight = (lengthCm * widthCm * heightCm) / 5000.0;
+        return getBillableWeight();
+    }
+
+    // --- Private helper method to eliminate duplication ---
+    private double getBillableWeight() {
+        double volumetricWeight = (lengthCm * widthCm * heightCm) / VOLUMETRIC_DIVISOR;
         return Math.max(weightKg, volumetricWeight);
     }
     
