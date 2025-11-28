@@ -37,7 +37,7 @@ public class FinancialReport {
         
         if (netProfit < 0) {
             System.out.println("   [!!!] ВНИМАНИЕ: Сделка убыточна!");
-        } else {
+        } else if (revenue > 0) {
             double margin = (netProfit / revenue) * 100;
             System.out.printf("   Маржинальность:            %10.1f %%\n", margin);
         }

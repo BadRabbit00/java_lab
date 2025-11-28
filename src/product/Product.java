@@ -187,11 +187,14 @@ public class Product {
     /**
      * Устанавливает себестоимость товара.
      * @param costPrice Цена закупки (не может быть отрицательной)
+     * @return true если установлено успешно, false если значение недопустимо
      */
-    public void setCostPrice(double costPrice) {
+    public boolean setCostPrice(double costPrice) {
         if (costPrice >= 0) {
             this.costPrice = costPrice;
+            return true;
         }
+        return false;
     }
 
     public String getStockStatus() {
